@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Testes do Simulador de Premiação</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+  <style>
+    .test-row {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--borda);
+    }
+    .test-row:last-child { border-bottom: 0; }
+    .test-row .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+    }
+    .test-row .dot.ok { background: var(--verde); }
+    .test-row .dot.fail { background: var(--vermelho); }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 600px) {
+      .summary { grid-template-columns: 1fr; }
+    }
+    .summary .card { text-align: center; }
+    .summary .num { font-size: 28px; font-weight: 800; }
+    .summary .num.ok { color: var(--verde); }
+    .summary .num.fail { color: var(--vermelho); }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div id="brand-logo-slot"><span class="brand-logo-text">ADS Software</span></div>
+    <div class="topbar-divider"></div>
+    <div class="topbar-title">Testes</div>
+    <div class="topbar-space"></div>
+  </header>
+
+  <main class="page narrow">
+    <section class="page-header">
+      <h1>Testes automáticos</h1>
+      <p>Validação das regras de premiação, certificação, cobertura e controle de acesso. Use esta página para garantir que nenhuma alteração quebrou as regras de negócio.</p>
+    </section>
+
+    <div class="summary">
+      <div class="card"><div class="metric-label">Total</div><div class="num" id="total">-</div></div>
+      <div class="card"><div class="metric-label">Passaram</div><div class="num ok" id="passaram">-</div></div>
+      <div class="card"><div class="metric-label">Falharam</div><div class="num fail" id="falharam">-</div></div>
+    </div>
+
+    <div class="toolbar">
+      <button class="button" type="button" onclick="executarTestes()">Rodar testes novamente</button>
+      <button class="button secondary" type="button" onclick="window.location.href='./consultor-premiacao.html'">Tela do consultor</button>
+      <button class="button secondary" type="button" onclick="window.location.href='./supervisor-premiacao.html'">Painel do supervisor</button>
+    </div>
+
+    <section style="margin-top:16px;">
+      <div class="card" id="resultado"></div>
+    </section>
+  </main>
+
+  <footer>
+    <span id="footer-brand">ADS Software</span> · Simulador de Premiação · <span id="periodo-label"></span>
+  </footer>
+
+  <script src="./config.js"></script>
+  <script src="./access-control.js"></script>
+  <script src="./premiacao-rules.js"></script>
+  <script>
+    'use strict';
+
+    function executarTestes() {
+      const resultado = runTests();
+      document.getElementById('total').textContent = resultado.total;
+      document.getElementById('passaram').textContent = resultado.passou;
+      document.getElementById('falharam').textContent = resultado.falhou;
+
+      const lista = document.getElementById('resultado');
+      lista.innerHTML = resultado.resultado.map((item) => `
+        <div class="test-row">
+          <div class="dot ${item.passou ? 'ok' : 'fail'}"></div>
+          <div>${item.nome}${item.passou ? '' : ' <strong style="color:var(--vermelho);">— FALHOU</strong>'}</div>
+        </div>
+      `).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderBrandLogo(document.getElementById('brand-logo-slot'));
+      document.getElementById('footer-brand').textContent = CONFIG.BRAND_NAME;
+      document.getElementById('periodo-label').textContent = CONFIG.PERIODO_LABEL;
+      executarTestes();
+    });
+  </script>
+</body>
+</html>

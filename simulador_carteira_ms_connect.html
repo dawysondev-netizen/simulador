@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MS Connect — Simulador de Premiação · Carteira</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary:       #6A1B9A;
+    --primary-hover: #5B1487;
+    --primary-light: #F3E5F5;
+    --bg:            #F6F7FB;
+    --card:          #FFFFFF;
+    --border:        #E4E6EB;
+    --text-primary:  #1F2937;
+    --text-secondary:#6B7280;
+    --success:       #16A34A;
+    --success-light: #F0FDF4;
+    --warning:       #F59E0B;
+    --warning-light: #FFFBEB;
+    --danger:        #DC2626;
+    --danger-light:  #FEF2F2;
+    --info:          #2563EB;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ── NAVBAR ── */
+  .navbar {
+    height: 64px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .navbar-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .logo-symbol {
+    width: 32px; height: 32px;
+    background: var(--primary); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-symbol svg { width: 18px; height: 18px; }
+  .logo-text { font-size: 16px; font-weight: 700; color: var(--primary); letter-spacing: -0.3px; }
+  .navbar-divider { width: 1px; height: 20px; background: var(--border); margin: 0 8px; }
+  .navbar-module { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+  .navbar-spacer { flex: 1; }
+  .badge-periodo {
+    font-size: 12px; font-weight: 600; color: var(--primary);
+    background: var(--primary-light); padding: 4px 12px; border-radius: 20px;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, #4A0072 0%, #6A1B9A 55%, #8B2FC9 100%);
+    padding: 48px 32px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+    top: -150px; right: -100px; border-radius: 50%;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%);
+    bottom: 0; left: -50px; border-radius: 50%;
+  }
+  .hero-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 32px;
+    align-items: flex-end;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-content { padding-bottom: 40px; }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 20px; padding: 6px 14px;
+    font-size: 12px; font-weight: 600;
+    color: rgba(255,255,255,0.9); letter-spacing: 0.4px;
+    margin-bottom: 20px;
+  }
+  .hero-eyebrow span {
+    width: 6px; height: 6px; background: #A7F3D0;
+    border-radius: 50%; animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.5; transform: scale(0.7); }
+  }
+  .hero h1 {
+    font-size: clamp(24px, 4vw, 38px);
+    font-weight: 800; color: #fff;
+    line-height: 1.15; margin-bottom: 14px; letter-spacing: -0.5px;
+  }
+  .hero h1 em { font-style: normal; color: #E9D5FF; }
+  .hero-sub {
+    font-size: 15px; color: rgba(255,255,255,0.75);
+    max-width: 480px; line-height: 1.65; margin-bottom: 28px;
+  }
+
+  /* HERO PRIZE DISPLAY */
+  .hero-prize-display {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 16px 16px 0 0;
+    padding: 24px 28px 32px;
+    text-align: center;
+    min-width: 200px;
+  }
+  .hero-prize-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.8px; text-transform: uppercase;
+    color: rgba(255,255,255,0.65); margin-bottom: 8px;
+  }
+  .hero-prize-value {
+    font-size: 36px; font-weight: 800; color: #fff;
+    letter-spacing: -1px; line-height: 1;
+    margin-bottom: 10px; transition: all 0.3s;
+  }
+  .hero-cert-badge {
+    font-size: 13px; font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    padding: 5px 14px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 20px;
+    display: inline-block;
+    transition: all 0.3s;
+  }
+
+  /* STEPS BAND */
+  .steps-band {
+    background: rgba(0,0,0,0.2);
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .steps-band-inner {
+    max-width: 960px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(3, 1fr); padding: 0;
+  }
+  .step-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 18px 24px;
+    border-right: 1px solid rgba(255,255,255,0.1);
+  }
+  .step-item:last-child { border-right: none; }
+  .step-icon {
+    width: 40px; height: 40px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .step-text strong { display: block; font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+  .step-text span { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.4; }
+
+  /* ── PAGE ── */
+  .page { max-width: 960px; margin: 0 auto; padding: 40px 24px 64px; }
+  .section-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.8px; text-transform: uppercase;
+    color: var(--text-secondary); margin-bottom: 16px;
+  }
+
+  /* ── MODE SWITCH ── */
+  .mode-switch {
+    display: flex; gap: 4px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 6px;
+    margin-bottom: 32px;
+    width: fit-content;
+  }
+  .mode-btn {
+    padding: 10px 24px; border-radius: 8px;
+    border: none; cursor: pointer;
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    color: var(--text-secondary);
+    background: transparent;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .mode-btn.active {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(106,27,154,0.3);
+  }
+  .mode-btn:hover:not(.active) { background: var(--bg); color: var(--text-primary); }
+
+  /* ── CERTIFICATION TRACK ── */
+  .cert-track {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0;
+    margin-bottom: 40px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  }
+  @media (max-width: 640px) {
+    .cert-track { grid-template-columns: 1fr 1fr; }
+    .cert-track-item:nth-child(2n) { border-right: none; }
+  }
+  .cert-track-item {
+    position: relative; padding: 20px 10px 18px;
+    text-align: center;
+    border-right: 1px solid rgba(255,255,255,0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+  .cert-track-item:last-child { border-right: none; }
+
+  .ct-bronze   { background: linear-gradient(160deg, #92400E, #B45309); }
+  .ct-prata    { background: linear-gradient(160deg, #374151, #6B7280); }
+  .ct-ouro     { background: linear-gradient(160deg, #92400E, #D97706); }
+  .ct-diamante { background: linear-gradient(160deg, #1D4ED8, #3B82F6); }
+  .ct-platinum { background: linear-gradient(160deg, #5B1487, #8B2FC9); }
+
+  .cert-track-item.active {
+    transform: translateY(-6px);
+    z-index: 5; border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.28);
+    border-right: none;
+  }
+  .cert-track-item.active::after {
+    content: '';
+    position: absolute; bottom: -10px; left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 10px solid rgba(0,0,0,0.3);
+  }
+  .cert-icon { font-size: 26px; display: block; margin-bottom: 8px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+  .cert-name { font-size: 12px; font-weight: 800; color: #fff; letter-spacing: 0.4px; margin-bottom: 6px; text-transform: uppercase; }
+  .cert-fat-range { font-size: 10px; color: rgba(255,255,255,0.65); background: rgba(0,0,0,0.18); border-radius: 10px; padding: 3px 7px; margin-bottom: 10px; display: inline-block; }
+  .cert-premio-consultor { font-size: 13px; font-weight: 800; color: #fff; display: block; text-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+  .cert-premio-label { font-size: 9px; color: rgba(255,255,255,0.55); font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; }
+  .cert-sup-row { font-size: 10px; color: rgba(255,255,255,0.7); margin-top: 4px; }
+
+  /* ── SIMULADOR GRID ── */
+  .simulador-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 700px) { .simulador-grid { grid-template-columns: 1fr; } }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+  }
+  .card-title {
+    font-size: 16px; font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .card-title-icon {
+    width: 32px; height: 32px;
+    background: var(--primary-light);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+
+  /* ── SLIDER GROUP ── */
+  .slider-group { margin-bottom: 24px; }
+  .slider-group:last-child { margin-bottom: 0; }
+  .slider-header {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 8px;
+    margin-bottom: 12px;
+  }
+  .slider-title { font-size: 14px; font-weight: 600; color: var(--text-primary); display: block; }
+  .slider-desc  { font-size: 12px; color: var(--text-secondary); }
+  .slider-value-badge {
+    font-size: 13px; font-weight: 700;
+    color: var(--primary);
+    background: var(--primary-light);
+    padding: 4px 10px; border-radius: 8px;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  input[type=range] {
+    width: 100%; height: 6px; border-radius: 4px;
+    background: linear-gradient(to right, var(--primary) 0%, var(--primary) var(--pct, 50%), var(--border) var(--pct, 50%), var(--border) 100%);
+    outline: none; border: none; cursor: pointer;
+    appearance: none; -webkit-appearance: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    appearance: none; -webkit-appearance: none;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #fff; border: 2px solid var(--primary);
+    box-shadow: 0 2px 6px rgba(106,27,154,0.3); cursor: grab;
+  }
+  .slider-markers {
+    display: flex; justify-content: space-between;
+    margin-top: 6px; font-size: 11px; color: var(--text-secondary);
+  }
+
+  /* ── COBERTURA INPUT ── */
+  .cobertura-row {
+    display: flex; align-items: center; gap: 10px; margin-top: 8px;
+  }
+  .cobertura-pct-input {
+    width: 72px; padding: 6px 10px;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    font-family: inherit; font-size: 14px; font-weight: 700;
+    color: var(--text-primary); text-align: center;
+    transition: border-color 0.2s;
+  }
+  .cobertura-pct-input:focus { outline: none; border-color: var(--primary); }
+  .cobertura-bar-wrap {
+    flex: 1; height: 8px; border-radius: 4px;
+    background: var(--border); overflow: hidden;
+  }
+  .cobertura-bar-fill {
+    height: 100%; border-radius: 4px;
+    background: linear-gradient(90deg, #16A34A, #22C55E);
+    transition: width 0.3s;
+  }
+  .cobertura-bar-fill.warn { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+
+  /* ── STATUS COBERTURA ── */
+  .status-cobertura {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border-radius: 10px;
+    margin-top: 12px; font-size: 13px; font-weight: 600;
+    transition: all 0.3s;
+  }
+  .status-cobertura.ok    { background: var(--success-light); color: var(--success); border: 1px solid #BBF7D0; }
+  .status-cobertura.nok   { background: var(--warning-light); color: #B45309; border: 1px solid #FDE68A; }
+  .status-cobertura .st-icon { font-size: 16px; }
+
+  /* ── RESULTADO CARD ── */
+  .resultado-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    display: flex; flex-direction: column; gap: 0;
+  }
+
+  /* Certificação STATUS BANNER */
+  .cert-status-banner {
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 14px;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+  }
+  .cert-status-banner.atingida {
+    background: var(--success-light);
+    border-color: #BBF7D0;
+  }
+  .cert-status-banner.bloqueada {
+    background: var(--danger-light);
+    border-color: #FECACA;
+  }
+  .cert-status-banner.sem-faixa {
+    background: var(--bg);
+    border-color: var(--border);
+  }
+  .cert-status-icon { font-size: 28px; flex-shrink: 0; }
+  .cert-status-title {
+    font-size: 13px; font-weight: 800;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 3px;
+  }
+  .cert-status-banner.atingida  .cert-status-title { color: var(--success); }
+  .cert-status-banner.bloqueada .cert-status-title { color: var(--danger); }
+  .cert-status-banner.sem-faixa .cert-status-title { color: var(--text-secondary); }
+  .cert-status-text { font-size: 12px; color: var(--text-secondary); }
+
+  /* Prêmio Total */
+  .resultado-total-label {
+    font-size: 12px; font-weight: 600; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.6px;
+    margin-bottom: 6px;
+  }
+  .resultado-total-value {
+    font-size: 40px; font-weight: 800;
+    color: var(--primary); letter-spacing: -1.5px;
+    margin-bottom: 6px; transition: all 0.3s;
+  }
+  .resultado-total-note {
+    font-size: 12px; color: var(--text-secondary);
+    margin-bottom: 20px;
+  }
+
+  /* Breakdown */
+  .breakdown-section {
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+    margin-top: 4px;
+  }
+  .breakdown-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.6px;
+    text-transform: uppercase; color: var(--text-secondary);
+    margin-bottom: 12px;
+  }
+  .breakdown-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 0; border-bottom: 1px solid var(--bg);
+  }
+  .breakdown-label { font-size: 13px; color: var(--text-secondary); }
+  .breakdown-value { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .breakdown-total-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 14px; margin-top: 8px;
+    background: var(--primary-light);
+    border-radius: 10px;
+  }
+  .breakdown-total-label { font-size: 13px; font-weight: 700; color: var(--primary); }
+  .breakdown-total-value { font-size: 16px; font-weight: 800; color: var(--primary); }
+
+  /* ── SUPERVISOR MODE ── */
+  #supervisor-panel { display: none; }
+
+  .sup-add-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 18px; border-radius: 8px;
+    background: var(--primary-light); color: var(--primary);
+    border: 1.5px dashed var(--primary);
+    font-family: inherit; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; margin-bottom: 20px;
+  }
+  .sup-add-btn:hover { background: var(--primary); color: #fff; }
+
+  .consultores-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+
+  .consultor-row {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1fr auto;
+    gap: 12px; align-items: center;
+    transition: border-color 0.2s;
+  }
+  .consultor-row:hover { border-color: var(--primary); }
+  @media (max-width: 640px) {
+    .consultor-row { grid-template-columns: 1fr 1fr; }
+  }
+
+  .consultor-field label { display: block; font-size: 11px; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .consultor-field input {
+    width: 100%; padding: 8px 10px;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    color: var(--text-primary); background: var(--card);
+    transition: border-color 0.2s;
+  }
+  .consultor-field input:focus { outline: none; border-color: var(--primary); }
+
+  .consultor-cert-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px; border-radius: 20px;
+    font-size: 12px; font-weight: 700;
+    border: 1.5px solid;
+    white-space: nowrap;
+  }
+  .consultor-cert-badge.bloqueada { background: #FEF2F2; color: var(--danger); border-color: #FECACA; }
+  .consultor-cert-badge.atingida  { background: var(--success-light); color: var(--success); border-color: #BBF7D0; }
+  .consultor-cert-badge.sem       { background: var(--bg); color: var(--text-secondary); border-color: var(--border); }
+
+  .remove-btn {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: transparent; border: 1px solid var(--border);
+    cursor: pointer; color: var(--text-secondary);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; transition: all 0.2s; flex-shrink: 0;
+  }
+  .remove-btn:hover { background: var(--danger-light); color: var(--danger); border-color: #FECACA; }
+
+  /* Supervisor result summary */
+  .sup-result-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px;
+  }
+  .sup-total-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 640px) { .sup-total-grid { grid-template-columns: 1fr 1fr; } }
+  .sup-stat {
+    background: var(--bg); border-radius: 12px; padding: 16px;
+    text-align: center;
+  }
+  .sup-stat-value { font-size: 24px; font-weight: 800; color: var(--primary); }
+  .sup-stat-label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.4px; margin-top: 4px; }
+
+  .sup-consultant-summary { margin-top: 16px; }
+  .sup-sum-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 12px; border-radius: 8px; margin-bottom: 4px;
+  }
+  .sup-sum-row:nth-child(odd) { background: var(--bg); }
+  .sup-sum-left { font-size: 13px; color: var(--text-secondary); }
+  .sup-sum-cert { font-size: 12px; font-weight: 600; }
+  .sup-sum-prize { font-size: 13px; font-weight: 700; color: var(--primary); }
+
+  /* ── DISCLAIMER BOX ── */
+  .disclaimer-box {
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 32px 0;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .disclaimer-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+  .disclaimer-box p { font-size: 13px; color: #92400E; line-height: 1.6; }
+  .disclaimer-box strong { font-weight: 700; }
+
+  /* ── COMO FUNCIONA ── */
+  .como-funciona { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px; }
+  @media (max-width: 600px) { .como-funciona { grid-template-columns: 1fr; } }
+  .cf-step {
+    display: flex; gap: 16px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px 20px;
+  }
+  .cf-num {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: var(--primary-light); color: var(--primary);
+    font-size: 14px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .cf-content h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .cf-content p  { font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+
+  /* ── FOOTER & DISCLAIMER GERAL ── */
+  .disclaimer {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 20px;
+    font-size: 12px; color: var(--text-secondary); line-height: 1.65;
+    margin-top: 8px;
+  }
+  footer {
+    background: var(--card); border-top: 1px solid var(--border);
+    padding: 20px 32px; text-align: center;
+    font-size: 12px; color: var(--text-secondary);
+    margin-top: 40px;
+  }
+
+  /* ── PROGRESS BAR FATURAMENTO ── */
+  .fat-progress-wrap { margin-top: 10px; }
+  .fat-progress-bar {
+    height: 6px; border-radius: 4px;
+    background: var(--border); overflow: hidden; margin-bottom: 6px;
+  }
+  .fat-progress-fill {
+    height: 100%; border-radius: 4px;
+    background: linear-gradient(90deg, var(--primary), #8B2FC9);
+    transition: width 0.3s;
+  }
+  .fat-progress-info {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--text-secondary);
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a class="navbar-logo" href="#">
+    <div class="logo-symbol">
+      <svg viewBox="0 0 20 20" fill="white">
+        <path d="M10 2C5.58 2 2 5.58 2 10s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 3.5a2.5 2.5 0 110 5 2.5 2.5 0 010-5zm0 9.5c-2.1 0-3.96-1.07-5.08-2.7A6.44 6.44 0 0110 11.25c1.86 0 3.53.79 4.71 2.05A6.47 6.47 0 0110 15z"/>
+      </svg>
+    </div>
+    <span class="logo-text">MS Connect</span>
+  </a>
+  <div class="navbar-divider"></div>
+  <span class="navbar-module">Simulador de Premiação · Carteira</span>
+  <div class="navbar-spacer"></div>
+  <span class="badge-periodo">Abril 2026</span>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <span></span>
+        Simulador · Modo Carteira
+      </div>
+      <h1>Premiação <em>Carteira</em><br>MS Connect</h1>
+      <p class="hero-sub">Simule sua premiação por faturamento de carteira e cobertura de clientes. A certificação é liberada somente com cobertura plena.</p>
+    </div>
+    <div class="hero-prize-display">
+      <div class="hero-prize-label">PREMIAÇÃO ESTIMADA</div>
+      <div class="hero-prize-value" id="hero-prize-value">R$ 0,00</div>
+      <div class="hero-cert-badge" id="hero-cert-badge">— Aguardando dados</div>
+    </div>
+  </div>
+  <div class="steps-band">
+    <div class="steps-band-inner">
+      <div class="step-item">
+        <div class="step-icon">📋</div>
+        <div class="step-text">
+          <strong>Cobertura de Carteira</strong>
+          <span>Clientes atendidos nos últimos 30 dias via ligação, tarefa ou comentário no Bitrix24</span>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-icon">💰</div>
+        <div class="step-text">
+          <strong>Performance por Faturamento</strong>
+          <span>A faixa de premiação é definida pelo faturamento total da carteira no mês</span>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-icon">🏆</div>
+        <div class="step-text">
+          <strong>Certificação Liberada</strong>
+          <span>Bronze → Platinum: a certificação exige 100% de cobertura e define seu nível</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- CERTIFICATION TRACK -->
+  <div class="section-label">Tabela de Certificação — Performance por Faturamento</div>
+  <div class="cert-track" id="cert-track">
+    <div class="cert-track-item ct-bronze" data-cert="bronze">
+      <span class="cert-icon">🥉</span>
+      <div class="cert-name">Bronze</div>
+      <div class="cert-fat-range">≥ R$ 10.000</div>
+      <span class="cert-premio-consultor" id="ct-premio-c-bronze">R$ 300</span>
+      <div class="cert-premio-label">consultor</div>
+      <div class="cert-sup-row">Supervisor: <span id="ct-premio-s-bronze">R$ 150</span></div>
+    </div>
+    <div class="cert-track-item ct-prata" data-cert="prata">
+      <span class="cert-icon">🥈</span>
+      <div class="cert-name">Prata</div>
+      <div class="cert-fat-range">≥ R$ 20.000</div>
+      <span class="cert-premio-consultor" id="ct-premio-c-prata">R$ 600</span>
+      <div class="cert-premio-label">consultor</div>
+      <div class="cert-sup-row">Supervisor: <span id="ct-premio-s-prata">R$ 300</span></div>
+    </div>
+    <div class="cert-track-item ct-ouro" data-cert="ouro">
+      <span class="cert-icon">🥇</span>
+      <div class="cert-name">Ouro</div>
+      <div class="cert-fat-range">≥ R$ 30.000</div>
+      <span class="cert-premio-consultor" id="ct-premio-c-ouro">R$ 1.000</span>
+      <div class="cert-premio-label">consultor</div>
+      <div class="cert-sup-row">Supervisor: <span id="ct-premio-s-ouro">R$ 500</span></div>
+    </div>
+    <div class="cert-track-item ct-diamante" data-cert="diamante">
+      <span class="cert-icon">💎</span>
+      <div class="cert-name">Diamante</div>
+      <div class="cert-fat-range">≥ R$ 50.000</div>
+      <span class="cert-premio-consultor" id="ct-premio-c-diamante">R$ 1.800</span>
+      <div class="cert-premio-label">consultor</div>
+      <div class="cert-sup-row">Supervisor: <span id="ct-premio-s-diamante">R$ 900</span></div>
+    </div>
+    <div class="cert-track-item ct-platinum" data-cert="platinum">
+      <span class="cert-icon">⭐</span>
+      <div class="cert-name">Platinum</div>
+      <div class="cert-fat-range">≥ R$ 80.000</div>
+      <span class="cert-premio-consultor" id="ct-premio-c-platinum">R$ 3.500</span>
+      <div class="cert-premio-label">consultor</div>
+      <div class="cert-sup-row">Supervisor: <span id="ct-premio-s-platinum">R$ 1.750</span></div>
+    </div>
+  </div>
+
+  <!-- MODE SWITCH -->
+  <div class="mode-switch">
+    <button class="mode-btn active" id="btn-consultor" onclick="setMode('consultor')">
+      👤 Consultor
+    </button>
+    <button class="mode-btn" id="btn-supervisor" onclick="setMode('supervisor')">
+      👥 Supervisor
+    </button>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       CONSULTOR PANEL
+  ═══════════════════════════════════════ -->
+  <div id="consultor-panel">
+    <div class="simulador-grid">
+
+      <!-- CONTROLES -->
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon">🎛️</div>
+          Dados da Simulação
+        </div>
+
+        <!-- Faturamento -->
+        <div class="slider-group">
+          <div class="slider-header">
+            <div class="slider-header-left">
+              <span class="slider-title">Faturamento da carteira</span>
+              <span class="slider-desc">Total faturado no período (R$)</span>
+            </div>
+            <span class="slider-value-badge" id="val-faturamento">R$ 0</span>
+          </div>
+          <input type="range" id="slider-faturamento" min="0" max="100000" value="0" step="500" oninput="syncFatSlider()">
+          <div class="slider-markers">
+            <span>R$ 0</span>
+            <span>R$ 10k</span>
+            <span>R$ 30k</span>
+            <span>R$ 80k</span>
+            <span>R$ 100k</span>
+          </div>
+          <div class="fat-progress-wrap">
+            <div class="fat-progress-bar">
+              <div class="fat-progress-fill" id="fat-progress-fill" style="width:0%"></div>
+            </div>
+            <div class="fat-progress-info">
+              <span id="fat-level-atual">Abaixo da faixa mínima</span>
+              <span id="fat-level-prox">Próxima faixa: Bronze (R$ 10.000)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Faturamento manual -->
+        <div class="slider-group" style="margin-top:-8px; margin-bottom:24px;">
+          <div class="slider-header">
+            <span class="slider-title" style="font-size:12px; color:var(--text-secondary);">Ou digite o valor exato:</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:13px; font-weight:600; color:var(--text-secondary);">R$</span>
+            <input type="number" id="input-faturamento" min="0" max="999999" placeholder="Ex: 25000"
+              style="flex:1; padding:8px 12px; border:1.5px solid var(--border); border-radius:8px;
+                     font-family:inherit; font-size:14px; font-weight:600; color:var(--text-primary);"
+              oninput="syncFatInput()">
+          </div>
+        </div>
+
+        <!-- Cobertura -->
+        <div class="slider-group">
+          <div class="slider-header">
+            <div class="slider-header-left">
+              <span class="slider-title">Cobertura de carteira</span>
+              <span class="slider-desc">% de clientes vigentes atendidos nos últimos 30 dias</span>
+            </div>
+            <span class="slider-value-badge" id="val-cobertura">0%</span>
+          </div>
+          <div class="cobertura-row">
+            <input type="number" class="cobertura-pct-input" id="input-cobertura"
+              min="0" max="100" value="0" placeholder="0"
+              oninput="syncCoberturaInput()">
+            <span style="font-size:14px; font-weight:700; color:var(--text-secondary);">%</span>
+            <div class="cobertura-bar-wrap">
+              <div class="cobertura-bar-fill" id="cob-bar-fill" style="width:0%"></div>
+            </div>
+          </div>
+          <input type="range" id="slider-cobertura" min="0" max="100" value="0" step="1"
+            style="margin-top:10px;" oninput="syncCoberturaSlider()">
+          <div class="slider-markers"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+          <div class="status-cobertura nok" id="status-cobertura">
+            <span class="st-icon">⚠️</span>
+            <span id="status-cobertura-text">Cobertura incompleta — ajuste para 100% para liberar certificação</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULTADO -->
+      <div class="resultado-card">
+        <div class="card-title">
+          <div class="card-title-icon">🏆</div>
+          Resultado Estimado
+        </div>
+
+        <!-- Certification status banner -->
+        <div class="cert-status-banner sem-faixa" id="cert-status-banner">
+          <span class="cert-status-icon" id="cert-status-icon">📊</span>
+          <div>
+            <div class="cert-status-title" id="cert-status-title">Sem Certificação</div>
+            <div class="cert-status-text" id="cert-status-text">Faturamento abaixo da faixa mínima (R$ 10.000)</div>
+          </div>
+        </div>
+
+        <div class="resultado-total-label">Premiação do Consultor</div>
+        <div class="resultado-total-value" id="resultado-total">R$ 0,00</div>
+        <div class="resultado-total-note" id="resultado-note">Valor definido pela tabela de premiação</div>
+
+        <div class="breakdown-section">
+          <div class="breakdown-title">Detalhamento</div>
+          <div class="breakdown-row">
+            <span class="breakdown-label">Faturamento simulado</span>
+            <span class="breakdown-value" id="b-faturamento">R$ 0</span>
+          </div>
+          <div class="breakdown-row">
+            <span class="breakdown-label">Faixa atingida</span>
+            <span class="breakdown-value" id="b-faixa">—</span>
+          </div>
+          <div class="breakdown-row">
+            <span class="breakdown-label">Cobertura de carteira</span>
+            <span class="breakdown-value" id="b-cobertura">0%</span>
+          </div>
+          <div class="breakdown-row">
+            <span class="breakdown-label">Status da certificação</span>
+            <span class="breakdown-value" id="b-cert-status">—</span>
+          </div>
+          <div class="breakdown-total-row">
+            <span class="breakdown-total-label">Premiação (tabela)</span>
+            <span class="breakdown-total-value" id="b-total">R$ 0,00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SUPERVISOR PANEL
+  ═══════════════════════════════════════ -->
+  <div id="supervisor-panel">
+    <div style="display: grid; grid-template-columns: 1fr; gap: 24px;">
+
+      <div class="card">
+        <div class="card-title">
+          <div class="card-title-icon">👥</div>
+          Equipe — Dados por Consultor
+        </div>
+        <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px; line-height:1.6;">
+          O supervisor é premiado pelo desempenho <strong>individual de cada consultor</strong>, não pelo faturamento total da equipe. Adicione os consultores da sua equipe abaixo.
+        </p>
+
+        <div class="consultores-list" id="consultores-list">
+          <!-- Consultores adicionados dinamicamente -->
+        </div>
+
+        <button class="sup-add-btn" onclick="addConsultor()">
+          + Adicionar consultor
+        </button>
+      </div>
+
+      <!-- RESULTADO SUPERVISOR -->
+      <div class="sup-result-card">
+        <div class="card-title">
+          <div class="card-title-icon">📊</div>
+          Resultado do Supervisor
+        </div>
+
+        <div class="sup-total-grid">
+          <div class="sup-stat">
+            <div class="sup-stat-value" id="sup-total-consultores">0</div>
+            <div class="sup-stat-label">Consultores</div>
+          </div>
+          <div class="sup-stat">
+            <div class="sup-stat-value" id="sup-cert-count">0</div>
+            <div class="sup-stat-label">Certificados</div>
+          </div>
+          <div class="sup-stat">
+            <div class="sup-stat-value" id="sup-total-premio" style="color:var(--success);">R$ 0,00</div>
+            <div class="sup-stat-label">Prêmio Total</div>
+          </div>
+        </div>
+
+        <div class="breakdown-section">
+          <div class="breakdown-title">Prêmio por Consultor</div>
+          <div class="sup-consultant-summary" id="sup-consultant-summary">
+            <p style="font-size:13px; color:var(--text-secondary); text-align:center; padding:20px 0;">
+              Adicione consultores acima para ver o resumo.
+            </p>
+          </div>
+          <div class="breakdown-total-row" style="margin-top:12px;">
+            <span class="breakdown-total-label">Total prêmio supervisor</span>
+            <span class="breakdown-total-value" id="sup-b-total">R$ 0,00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DISCLAIMER BOX -->
+  <div class="disclaimer-box">
+    <span class="disclaimer-icon">ℹ️</span>
+    <p>
+      <strong>Regra de certificação:</strong> A certificação é liberada somente com cobertura plena da carteira (100%). Os valores financeiros já estão definidos na tabela de premiação e <strong>não recebem acréscimos automáticos por certificação</strong>. O nível (Bronze, Prata, Ouro, Diamante, Platinum) serve apenas como classificação de desempenho — o valor do prêmio vem diretamente da tabela vigente.
+    </p>
+  </div>
+
+  <!-- COMO FUNCIONA -->
+  <div class="section-label">Como funciona o programa</div>
+  <div class="como-funciona">
+    <div class="cf-step">
+      <div class="cf-num">1</div>
+      <div class="cf-content">
+        <h3>Cobertura de Carteira</h3>
+        <p>Você deve atender 100% dos clientes vigentes da carteira nos últimos 30 dias via ligação, tarefa ou comentário no card do Bitrix24.</p>
+      </div>
+    </div>
+    <div class="cf-step">
+      <div class="cf-num">2</div>
+      <div class="cf-content">
+        <h3>Faturamento da Carteira</h3>
+        <p>O faturamento total da carteira no período define a faixa de certificação (Bronze → Platinum), conforme a tabela de premiação vigente.</p>
+      </div>
+    </div>
+    <div class="cf-step">
+      <div class="cf-num">3</div>
+      <div class="cf-content">
+        <h3>Certificação e Premiação</h3>
+        <p>A certificação é liberada apenas se a cobertura for 100%. O prêmio financeiro é definido pela faixa atingida na tabela — a certificação não adiciona valor extra.</p>
+      </div>
+    </div>
+    <div class="cf-step">
+      <div class="cf-num">4</div>
+      <div class="cf-content">
+        <h3>Supervisor por Consultor</h3>
+        <p>O supervisor recebe um prêmio proporcional ao desempenho individual de cada consultor da equipe, não pelo faturamento total agregado.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- DISCLAIMER FINAL -->
+  <div class="disclaimer">
+    <strong>Aviso importante:</strong> Este simulador é uma ferramenta de apoio com caráter exclusivamente informativo. Os valores são <strong>estimativas baseadas na tabela de premiação vigente</strong> e não representam garantia de pagamento. Os resultados efetivos estão condicionados ao cumprimento integral das regras da campanha e à validação pela área responsável. Consulte o regulamento oficial.
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  MS Connect · Simulador de Premiação · Carteira · Abril 2026 · Uso interno
+</footer>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   TABELA DE PREMIAÇÃO — CARTEIRA
+   Fonte: Tabela de premiações 28042026.xlsx
+   ──────────────────────────────────────────────────────
+   ESTRUTURA: { key, nome, icon, fatMin, fatMax,
+                premioConsultor, premioSupervisor,
+                cor, bg, textColor }
+   ══════════════════════════════════════════════════════ */
+const TABELA_PREMIACAO = [
+  {
+    key: 'sem',
+    nome: 'Sem Certificação',
+    icon: '—',
+    fatMin: 0,
+    fatMax: 9999,
+    premioConsultor: 0,
+    premioSupervisor: 0,
+    cor: '#9CA3AF',
+    bg: '#F9FAFB',
+    textColor: '#374151'
+  },
+  {
+    key: 'bronze',
+    nome: 'Bronze',
+    icon: '🥉',
+    fatMin: 10000,
+    fatMax: 19999,
+    premioConsultor: 300,
+    premioSupervisor: 150,
+    cor: '#B45309',
+    bg: '#FEF3C7',
+    textColor: '#92400E'
+  },
+  {
+    key: 'prata',
+    nome: 'Prata',
+    icon: '🥈',
+    fatMin: 20000,
+    fatMax: 29999,
+    premioConsultor: 600,
+    premioSupervisor: 300,
+    cor: '#6B7280',
+    bg: '#F3F4F6',
+    textColor: '#1F2937'
+  },
+  {
+    key: 'ouro',
+    nome: 'Ouro',
+    icon: '🥇',
+    fatMin: 30000,
+    fatMax: 49999,
+    premioConsultor: 1000,
+    premioSupervisor: 500,
+    cor: '#D97706',
+    bg: '#FFFBEB',
+    textColor: '#92400E'
+  },
+  {
+    key: 'diamante',
+    nome: 'Diamante',
+    icon: '💎',
+    fatMin: 50000,
+    fatMax: 79999,
+    premioConsultor: 1800,
+    premioSupervisor: 900,
+    cor: '#2563EB',
+    bg: '#EFF6FF',
+    textColor: '#1E40AF'
+  },
+  {
+    key: 'platinum',
+    nome: 'Platinum',
+    icon: '⭐',
+    fatMin: 80000,
+    fatMax: Infinity,
+    premioConsultor: 3500,
+    premioSupervisor: 1750,
+    cor: '#6A1B9A',
+    bg: '#F3E5F5',
+    textColor: '#4A0072'
+  }
+];
+
+/* ── UTILITÁRIOS ── */
+function fmt(v) {
+  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+/* ── REGRAS PURAS ── */
+
+/**
+ * Retorna a faixa de certificação baseada no faturamento.
+ * Não leva em conta cobertura — isso é responsabilidade de quem chama.
+ */
+function getFaixa(faturamento) {
+  for (let i = TABELA_PREMIACAO.length - 1; i >= 0; i--) {
+    if (faturamento >= TABELA_PREMIACAO[i].fatMin) {
+      return TABELA_PREMIACAO[i];
+    }
+  }
+  return TABELA_PREMIACAO[0];
+}
+
+/**
+ * Retorna o prêmio do consultor direto da tabela.
+ * NÃO adiciona nenhum bônus extra por cobertura ou certificação.
+ */
+function getPremioConsultor(faturamento) {
+  return getFaixa(faturamento).premioConsultor;
+}
+
+/**
+ * Retorna o prêmio do supervisor para UM consultor específico, direto da tabela.
+ * NÃO adiciona nenhum bônus extra.
+ */
+function getPremioSupervisorPorConsultor(faturamento) {
+  return getFaixa(faturamento).premioSupervisor;
+}
+
+/**
+ * Retorna o status da certificação:
+ * - 'sem_faixa': faturamento abaixo da mínima (R$10.000)
+ * - 'bloqueada': faixa atingida, mas cobertura < 100%
+ * - 'atingida':  faixa atingida e cobertura = 100%
+ */
+function getStatusCertificacao(faturamento, coberturaPct) {
+  const faixa = getFaixa(faturamento);
+  if (faixa.key === 'sem') return 'sem_faixa';
+  if (coberturaPct < 100) return 'bloqueada';
+  return 'atingida';
+}
+
+/* ── PRÓXIMA FAIXA ── */
+function getProxFaixa(faturamento) {
+  for (let i = 0; i < TABELA_PREMIACAO.length; i++) {
+    if (faturamento < TABELA_PREMIACAO[i].fatMin) return TABELA_PREMIACAO[i];
+  }
+  return null;
+}
+
+/* ══════════════════════════════════════════════════════
+   MODO: CONSULTOR
+   ══════════════════════════════════════════════════════ */
+function syncFatSlider() {
+  const v = parseInt(document.getElementById('slider-faturamento').value);
+  document.getElementById('input-faturamento').value = v;
+  calcularConsultor();
+}
+
+function syncFatInput() {
+  let v = parseInt(document.getElementById('input-faturamento').value) || 0;
+  v = Math.min(100000, Math.max(0, v));
+  document.getElementById('slider-faturamento').value = v;
+  calcularConsultor();
+}
+
+function syncCoberturaSlider() {
+  const v = parseInt(document.getElementById('slider-cobertura').value);
+  document.getElementById('input-cobertura').value = v;
+  calcularConsultor();
+}
+
+function syncCoberturaInput() {
+  let v = parseInt(document.getElementById('input-cobertura').value);
+  if (isNaN(v)) v = 0;
+  v = Math.min(100, Math.max(0, v));
+  document.getElementById('input-cobertura').value = v;
+  document.getElementById('slider-cobertura').value = v;
+  calcularConsultor();
+}
+
+function calcularConsultor() {
+  const faturamento = parseInt(document.getElementById('input-faturamento').value) || 0;
+  const cobertura   = parseInt(document.getElementById('input-cobertura').value)   || 0;
+
+  const faixa       = getFaixa(faturamento);
+  const status      = getStatusCertificacao(faturamento, cobertura);
+  // Premio vem SEMPRE da tabela, sem acréscimos
+  const premio      = getPremioConsultor(faturamento);
+  const proxFaixa   = getProxFaixa(faturamento);
+
+  /* ── Exibição dos valores de input ── */
+  document.getElementById('val-faturamento').textContent = fmt(faturamento);
+  document.getElementById('val-cobertura').textContent   = cobertura + '%';
+
+  /* ── Barra de faturamento ── */
+  const maxFat = 100000;
+  const fatPct = Math.min(100, Math.round((faturamento / maxFat) * 100));
+  document.getElementById('fat-progress-fill').style.width = fatPct + '%';
+
+  if (faixa.key !== 'sem') {
+    document.getElementById('fat-level-atual').textContent = faixa.icon + ' ' + faixa.nome + ' atingido';
+  } else {
+    document.getElementById('fat-level-atual').textContent = 'Abaixo da faixa mínima';
+  }
+  if (proxFaixa) {
+    const faltam = proxFaixa.fatMin - faturamento;
+    document.getElementById('fat-level-prox').textContent =
+      faltam > 0
+        ? `Próxima: ${proxFaixa.nome} (faltam ${fmt(faltam)})`
+        : proxFaixa.nome + ' atingido';
+  } else {
+    document.getElementById('fat-level-prox').textContent = 'Nível máximo atingido';
+  }
+
+  /* ── Barra de cobertura ── */
+  const cobFill = document.getElementById('cob-bar-fill');
+  cobFill.style.width = cobertura + '%';
+  if (cobertura < 100) {
+    cobFill.classList.add('warn');
+    cobFill.classList.remove('ok-bar');
+  } else {
+    cobFill.classList.remove('warn');
+  }
+
+  /* ── Status cobertura ── */
+  const stCob    = document.getElementById('status-cobertura');
+  const stCobTxt = document.getElementById('status-cobertura-text');
+  if (cobertura >= 100) {
+    stCob.className = 'status-cobertura ok';
+    stCobTxt.textContent = 'Cobertura plena atingida — certificação habilitada';
+    document.getElementById('status-cobertura').querySelector('.st-icon').textContent = '✅';
+  } else {
+    stCob.className = 'status-cobertura nok';
+    const faltamPct = 100 - cobertura;
+    stCobTxt.textContent = `Cobertura incompleta — faltam ${faltamPct}% para liberar a certificação`;
+    document.getElementById('status-cobertura').querySelector('.st-icon').textContent = '⚠️';
+  }
+
+  /* ── Banner de certificação ── */
+  const banner    = document.getElementById('cert-status-banner');
+  const bannerIcon  = document.getElementById('cert-status-icon');
+  const bannerTitle = document.getElementById('cert-status-title');
+  const bannerText  = document.getElementById('cert-status-text');
+
+  if (status === 'sem_faixa') {
+    banner.className = 'cert-status-banner sem-faixa';
+    bannerIcon.textContent  = '📊';
+    bannerTitle.textContent = 'Sem Certificação';
+    bannerText.textContent  = 'Faturamento abaixo da faixa mínima (R$ 10.000)';
+  } else if (status === 'bloqueada') {
+    banner.className = 'cert-status-banner bloqueada';
+    bannerIcon.textContent  = '🔒';
+    bannerTitle.textContent = 'Certificação Bloqueada';
+    bannerText.textContent  = `Certificação bloqueada por cobertura incompleta — faixa atingida: ${faixa.nome} (${faixa.icon}), mas cobertura está em ${cobertura}%`;
+  } else {
+    // atingida
+    banner.className = 'cert-status-banner atingida';
+    bannerIcon.textContent  = faixa.icon;
+    bannerTitle.textContent = `Certificação Atingida: ${faixa.nome}`;
+    bannerText.textContent  = `Cobertura plena atingida · Faturamento na faixa ${faixa.nome} (${fmt(faixa.fatMin)}+)`;
+  }
+
+  /* ── Valor total ── */
+  document.getElementById('resultado-total').textContent = fmt(premio);
+  document.getElementById('hero-prize-value').textContent = fmt(premio);
+
+  // Nota explicativa
+  const noteEl = document.getElementById('resultado-note');
+  if (status === 'sem_faixa') {
+    noteEl.textContent = 'Faturamento insuficiente para premiação';
+  } else if (status === 'bloqueada') {
+    noteEl.textContent = 'Valor da tabela · Certificação não validada por cobertura';
+  } else {
+    noteEl.textContent = `Valor da tabela · Certificação ${faixa.nome} validada`;
+  }
+
+  // Hero badge
+  const heroBadge = document.getElementById('hero-cert-badge');
+  if (status === 'sem_faixa') {
+    heroBadge.textContent = '— Sem faixa atingida';
+  } else if (status === 'bloqueada') {
+    heroBadge.textContent = `🔒 Certificação Bloqueada (${faixa.nome})`;
+  } else {
+    heroBadge.textContent = `${faixa.icon} Certificação: ${faixa.nome}`;
+  }
+
+  /* ── Breakdown ── */
+  document.getElementById('b-faturamento').textContent = fmt(faturamento);
+  document.getElementById('b-faixa').textContent = faixa.key === 'sem' ? 'Nenhuma' : `${faixa.icon} ${faixa.nome}`;
+  document.getElementById('b-cobertura').textContent = cobertura + '%';
+
+  let certStatusText = '—';
+  if (status === 'sem_faixa')  certStatusText = 'Sem faixa atingida';
+  if (status === 'bloqueada')  certStatusText = `🔒 Bloqueada (cobertura: ${cobertura}%)`;
+  if (status === 'atingida')   certStatusText = `✅ Atingida: ${faixa.nome}`;
+  document.getElementById('b-cert-status').textContent = certStatusText;
+  document.getElementById('b-total').textContent = fmt(premio);
+
+  /* ── Highlight na cert track ── */
+  document.querySelectorAll('.cert-track-item').forEach(item => {
+    item.classList.remove('active');
+    if (item.dataset.cert === faixa.key) item.classList.add('active');
+  });
+
+  /* ── Atualizar CSS da barra de faturamento ── */
+  const slFat = document.getElementById('slider-faturamento');
+  const pctFat = ((faturamento - slFat.min) / (slFat.max - slFat.min)) * 100;
+  slFat.style.setProperty('--pct', pctFat + '%');
+
+  const slCob = document.getElementById('slider-cobertura');
+  const pctCob = ((cobertura - 0) / 100) * 100;
+  slCob.style.setProperty('--pct', pctCob + '%');
+}
+
+/* ══════════════════════════════════════════════════════
+   MODO: SUPERVISOR
+   ══════════════════════════════════════════════════════ */
+let consultorCount = 0;
+
+function addConsultor() {
+  consultorCount++;
+  const id = consultorCount;
+  const list = document.getElementById('consultores-list');
+
+  const row = document.createElement('div');
+  row.className = 'consultor-row';
+  row.id = `consultor-row-${id}`;
+  row.innerHTML = `
+    <div class="consultor-field">
+      <label>Nome</label>
+      <input type="text" id="c-nome-${id}" placeholder="Consultor ${id}" oninput="calcularSupervisor()">
+    </div>
+    <div class="consultor-field">
+      <label>Faturamento (R$)</label>
+      <input type="number" id="c-fat-${id}" min="0" placeholder="Ex: 25000" oninput="calcularSupervisor()">
+    </div>
+    <div class="consultor-field">
+      <label>Cobertura (%)</label>
+      <input type="number" id="c-cob-${id}" min="0" max="100" placeholder="0–100" oninput="calcularSupervisor()">
+    </div>
+    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+      <div id="c-cert-badge-${id}" class="consultor-cert-badge sem">— Aguardando</div>
+      <button class="remove-btn" onclick="removeConsultor(${id})" title="Remover">✕</button>
+    </div>
+  `;
+  list.appendChild(row);
+  calcularSupervisor();
+}
+
+function removeConsultor(id) {
+  const row = document.getElementById(`consultor-row-${id}`);
+  if (row) row.remove();
+  calcularSupervisor();
+}
+
+function calcularSupervisor() {
+  const rows = document.querySelectorAll('.consultor-row');
+  let totalPremio    = 0;
+  let certCount      = 0;
+  const summaryItems = [];
+
+  rows.forEach(row => {
+    const id      = row.id.replace('consultor-row-', '');
+    const nomeEl  = document.getElementById(`c-nome-${id}`);
+    const fatEl   = document.getElementById(`c-fat-${id}`);
+    const cobEl   = document.getElementById(`c-cob-${id}`);
+    const badgeEl = document.getElementById(`c-cert-badge-${id}`);
+
+    if (!nomeEl || !fatEl || !cobEl || !badgeEl) return;
+
+    const nome      = nomeEl.value.trim() || `Consultor ${id}`;
+    const fat       = parseFloat(fatEl.value) || 0;
+    const cob       = parseFloat(cobEl.value) || 0;
+
+    const faixa     = getFaixa(fat);
+    const status    = getStatusCertificacao(fat, cob);
+    // Premio supervisor vem DIRETAMENTE da tabela — sem bônus extras
+    const premioSup = getPremioSupervisorPorConsultor(fat);
+
+    totalPremio += premioSup;
+    if (status === 'atingida') certCount++;
+
+    /* ── Badge do consultor ── */
+    if (status === 'sem_faixa') {
+      badgeEl.className = 'consultor-cert-badge sem';
+      badgeEl.textContent = '— Sem faixa';
+    } else if (status === 'bloqueada') {
+      badgeEl.className = 'consultor-cert-badge bloqueada';
+      badgeEl.textContent = `🔒 ${faixa.nome} (bloqueada)`;
+    } else {
+      badgeEl.className = 'consultor-cert-badge atingida';
+      badgeEl.textContent = `${faixa.icon} ${faixa.nome}`;
+    }
+
+    summaryItems.push({ nome, faixa, status, premioSup });
+  });
+
+  /* ── Stats do supervisor ── */
+  document.getElementById('sup-total-consultores').textContent = rows.length;
+  document.getElementById('sup-cert-count').textContent        = certCount;
+  document.getElementById('sup-total-premio').textContent      = fmt(totalPremio);
+  document.getElementById('sup-b-total').textContent           = fmt(totalPremio);
+
+  /* ── Hero ── */
+  document.getElementById('hero-prize-value').textContent = fmt(totalPremio);
+  if (certCount > 0) {
+    document.getElementById('hero-cert-badge').textContent = `🏆 ${certCount} consultor(es) certificado(s)`;
+  } else {
+    document.getElementById('hero-cert-badge').textContent = rows.length > 0 ? '🔒 Nenhum certificado ainda' : '— Adicione consultores';
+  }
+
+  /* ── Resumo por consultor ── */
+  const sumEl = document.getElementById('sup-consultant-summary');
+  if (summaryItems.length === 0) {
+    sumEl.innerHTML = '<p style="font-size:13px; color:var(--text-secondary); text-align:center; padding:20px 0;">Adicione consultores acima para ver o resumo.</p>';
+    return;
+  }
+
+  sumEl.innerHTML = summaryItems.map(item => {
+    let certLabel = '';
+    let certColor = 'var(--text-secondary)';
+    if (item.status === 'sem_faixa') {
+      certLabel = '— Sem faixa';
+    } else if (item.status === 'bloqueada') {
+      certLabel = `🔒 ${item.faixa.nome} (cobertura incompleta)`;
+      certColor = 'var(--danger)';
+    } else {
+      certLabel = `${item.faixa.icon} Certificação: ${item.faixa.nome}`;
+      certColor = 'var(--success)';
+    }
+    return `
+      <div class="sup-sum-row">
+        <div>
+          <div class="sup-sum-left">${item.nome}</div>
+          <div class="sup-sum-cert" style="color:${certColor}">${certLabel}</div>
+        </div>
+        <div class="sup-sum-prize">${item.premioSup > 0 ? fmt(item.premioSup) : 'R$ 0,00'}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════════════
+   ALTERNÂNCIA DE MODO
+   ══════════════════════════════════════════════════════ */
+function setMode(mode) {
+  const btnC = document.getElementById('btn-consultor');
+  const btnS = document.getElementById('btn-supervisor');
+  const panC = document.getElementById('consultor-panel');
+  const panS = document.getElementById('supervisor-panel');
+
+  if (mode === 'consultor') {
+    btnC.classList.add('active');
+    btnS.classList.remove('active');
+    panC.style.display = 'block';
+    panS.style.display = 'none';
+    calcularConsultor();
+  } else {
+    btnS.classList.add('active');
+    btnC.classList.remove('active');
+    panS.style.display = 'block';
+    panC.style.display = 'none';
+    // Adiciona consultor inicial se lista vazia
+    if (document.querySelectorAll('.consultor-row').length === 0) {
+      addConsultor();
+      addConsultor();
+    }
+    calcularSupervisor();
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   INICIALIZAÇÃO
+   ══════════════════════════════════════════════════════ */
+calcularConsultor();
+
+/* ─── TESTES AUTOMATIZADOS (console) ───────────────────
+   Para executar: abra o console do navegador e chame runTests()
+   ─────────────────────────────────────────────────────── */
+function runTests() {
+  console.group('🧪 Testes do Simulador de Premiação — Carteira');
+
+  const testes = [
+    {
+      desc: 'Consultor com faturamento Ouro (R$35.000) e cobertura 99%',
+      fat: 35000, cob: 99,
+      esperadoStatus: 'bloqueada',
+      esperadoMsg: 'Certificação bloqueada por cobertura incompleta',
+      esperadoPremio: 1000  // valor da tabela — Ouro
+    },
+    {
+      desc: 'Consultor com faturamento Ouro (R$35.000) e cobertura 100%',
+      fat: 35000, cob: 100,
+      esperadoStatus: 'atingida',
+      esperadoMsg: 'Certificação atingida: Ouro',
+      esperadoPremio: 1000
+    },
+    {
+      desc: 'Consultor abaixo da faixa mínima (R$5.000) e cobertura 100%',
+      fat: 5000, cob: 100,
+      esperadoStatus: 'sem_faixa',
+      esperadoMsg: 'Sem certificação',
+      esperadoPremio: 0
+    },
+    {
+      desc: 'Consultor Bronze (R$12.000) e cobertura 100%',
+      fat: 12000, cob: 100,
+      esperadoStatus: 'atingida',
+      esperadoMsg: 'Certificação atingida: Bronze',
+      esperadoPremio: 300
+    },
+    {
+      desc: 'Consultor Platinum (R$90.000) e cobertura 80% — deve bloquear',
+      fat: 90000, cob: 80,
+      esperadoStatus: 'bloqueada',
+      esperadoMsg: 'Certificação bloqueada por cobertura incompleta',
+      esperadoPremio: 3500  // valor da tabela — prêmio é da tabela mesmo bloqueado
+    },
+    {
+      desc: 'Supervisor — consultor Ouro (R$35.000), cob 100%: prêmio supervisor da tabela',
+      fat: 35000, cob: 100,
+      tipoSupervisor: true,
+      esperadoPremioSup: 500  // valor tabela Ouro — supervisor
+    },
+    {
+      desc: 'Supervisor — consultor Ouro (R$35.000), cob 99%: prêmio é da tabela, cert bloqueada',
+      fat: 35000, cob: 99,
+      tipoSupervisor: true,
+      esperadoStatus: 'bloqueada',
+      esperadoPremioSup: 500  // prêmio da tabela não muda — só a cert é bloqueada
+    }
+  ];
+
+  let passed = 0;
+  let failed = 0;
+
+  testes.forEach((t, i) => {
+    const faixa  = getFaixa(t.fat);
+    const status = getStatusCertificacao(t.fat, t.cob);
+    const premioC = getPremioConsultor(t.fat);
+    const premioS = getPremioSupervisorPorConsultor(t.fat);
+
+    let ok = true;
+    const erros = [];
+
+    if (t.esperadoStatus && status !== t.esperadoStatus) {
+      ok = false;
+      erros.push(`Status: esperado "${t.esperadoStatus}", obtido "${status}"`);
+    }
+    if (t.esperadoPremio !== undefined && premioC !== t.esperadoPremio) {
+      ok = false;
+      erros.push(`Prêmio consultor: esperado R$${t.esperadoPremio}, obtido R$${premioC}`);
+    }
+    if (t.esperadoPremioSup !== undefined && premioS !== t.esperadoPremioSup) {
+      ok = false;
+      erros.push(`Prêmio supervisor: esperado R$${t.esperadoPremioSup}, obtido R$${premioS}`);
+    }
+
+    if (ok) {
+      console.log(`✅ [${i+1}] ${t.desc}`);
+      passed++;
+    } else {
+      console.error(`❌ [${i+1}] ${t.desc}`);
+      erros.forEach(e => console.error(`   → ${e}`));
+      failed++;
+    }
+  });
+
+  console.log(`\n📊 Resultado: ${passed} passou, ${failed} falhou`);
+  if (failed === 0) {
+    console.log('🎉 Todos os testes passaram!');
+  }
+  console.groupEnd();
+}
+</script>
+</body>
+</html>

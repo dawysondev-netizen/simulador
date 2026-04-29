@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Importar Tabela de Premiação · ADS Software</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #F8FAFD;
+    color: #1A1A2E;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 40px 16px 60px;
+  }
+  .wrap { max-width: 780px; width: 100%; }
+
+  /* Header */
+  .header {
+    display: flex; align-items: center; gap: 16px;
+    background: #1A73E8; color: #fff;
+    border-radius: 16px; padding: 22px 28px;
+    margin-bottom: 28px;
+    box-shadow: 0 4px 16px rgba(26,115,232,.25);
+  }
+  .header-icon {
+    width: 48px; height: 48px; background: rgba(255,255,255,.2);
+    border-radius: 12px; display: flex; align-items: center;
+    justify-content: center; font-size: 24px; flex-shrink: 0;
+  }
+  .header h1 { font-size: 20px; font-weight: 700; margin-bottom: 2px; }
+  .header p  { font-size: 13px; opacity: .85; }
+
+  /* Card */
+  .card {
+    background: #fff;
+    border: 1px solid #E0E8F4;
+    border-radius: 16px;
+    box-shadow: 0 1px 6px rgba(0,0,0,.06);
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .card-header {
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid #E0E8F4;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .card-header .step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #1A73E8; color: #fff;
+    font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .card-header h2 { font-size: 15px; font-weight: 700; color: #1A1A2E; }
+  .card-body { padding: 20px 24px 24px; }
+
+  /* Drop zone */
+  .drop-zone {
+    border: 2px dashed #90BAF7;
+    border-radius: 12px;
+    padding: 40px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+    background: #F0F6FF;
+  }
+  .drop-zone:hover, .drop-zone.drag-over {
+    border-color: #1A73E8; background: #E8F0FE;
+  }
+  .drop-zone .dz-icon { font-size: 40px; margin-bottom: 10px; display: block; }
+  .drop-zone .dz-title { font-size: 16px; font-weight: 600; color: #1A1A2E; margin-bottom: 4px; }
+  .drop-zone .dz-sub { font-size: 13px; color: #5F6368; }
+  .drop-zone input { display: none; }
+
+  .btn-select {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #1A73E8; color: #fff;
+    border: none; border-radius: 8px;
+    padding: 10px 20px; font-size: 14px; font-weight: 600;
+    cursor: pointer; margin-top: 14px;
+    transition: background .15s, transform .1s;
+  }
+  .btn-select:hover { background: #1558B0; transform: translateY(-1px); }
+
+  /* Status pill */
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: 99px;
+    font-size: 13px; font-weight: 600;
+    margin-top: 14px;
+  }
+  .status-pill.ok     { background: #E6F4EA; color: #1E8E3E; }
+  .status-pill.erro   { background: #FCE8E6; color: #C5221F; }
+  .status-pill.aviso  { background: #FEF3C7; color: #92400E; }
+
+  /* Preview table */
+  .preview-wrap { overflow-x: auto; margin-top: 18px; }
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 13px;
+  }
+  th {
+    background: #F0F4FF; color: #3C4043;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .5px;
+    padding: 10px 14px; text-align: left;
+    border-bottom: 2px solid #C5D9F7;
+  }
+  td {
+    padding: 9px 14px; border-bottom: 1px solid #EEF2F8;
+    color: #1A1A2E;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #F8FAFD; }
+  td.num { font-weight: 700; font-variant-numeric: tabular-nums; }
+  td.money { color: #1A73E8; font-weight: 700; }
+
+  /* Output */
+  .output-box {
+    position: relative;
+    background: #0D1117; color: #E6EDF3;
+    border-radius: 12px; padding: 20px 24px;
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    font-size: 12px; line-height: 1.6;
+    overflow-x: auto; white-space: pre;
+    max-height: 400px; overflow-y: auto;
+  }
+  .output-box .kw  { color: #FF7B72; }
+  .output-box .cn  { color: #79C0FF; }
+  .output-box .cm  { color: #8B949E; font-style: italic; }
+  .output-box .num { color: #79C0FF; }
+
+  .btn-copy {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #1E8E3E; color: #fff;
+    border: none; border-radius: 8px;
+    padding: 10px 20px; font-size: 14px; font-weight: 600;
+    cursor: pointer; margin-top: 14px;
+    transition: background .15s;
+  }
+  .btn-copy:hover { background: #166D31; }
+  .btn-copy.copied { background: #34A853; }
+
+  /* Instruction */
+  .instruction {
+    background: #FFF8E1; border: 1px solid #FFD54F;
+    border-radius: 12px; padding: 16px 20px;
+  }
+  .instruction h3 { font-size: 14px; font-weight: 700; color: #7B5800; margin-bottom: 8px; }
+  .instruction ol { padding-left: 20px; color: #4A3000; }
+  .instruction li { font-size: 13px; margin-bottom: 6px; line-height: 1.5; }
+  .instruction code {
+    background: rgba(0,0,0,.08); border-radius: 4px;
+    padding: 2px 6px; font-size: 12px; font-family: monospace;
+  }
+
+  /* Hidden until file loaded */
+  .hidden { display: none !important; }
+
+  /* Warn about invalid rows */
+  .warn-list {
+    background: #FEF3C7; border: 1px solid #FCD34D;
+    border-radius: 10px; padding: 14px 18px;
+    margin-top: 14px; font-size: 12px; color: #78350F;
+  }
+  .warn-list ul { padding-left: 18px; margin-top: 6px; }
+  .warn-list li { margin-bottom: 3px; font-family: monospace; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-icon">📊</div>
+    <div>
+      <h1>Importar Tabela de Premiação</h1>
+      <p>ADS Software · Simulador Carteira · Sem precisar de Python</p>
+    </div>
+  </div>
+
+  <!-- Passo 1: selecionar arquivo -->
+  <div class="card">
+    <div class="card-header">
+      <div class="step-num">1</div>
+      <h2>Selecione o arquivo Excel</h2>
+    </div>
+    <div class="card-body">
+      <div class="drop-zone" id="drop-zone">
+        <span class="dz-icon">📂</span>
+        <div class="dz-title">Arraste o arquivo aqui</div>
+        <div class="dz-sub">ou clique para selecionar</div>
+        <button class="btn-select" onclick="document.getElementById('file-input').click()">
+          📂 Selecionar arquivo .xlsx
+        </button>
+        <input type="file" id="file-input" accept=".xlsx,.xls">
+      </div>
+
+      <div id="file-status"></div>
+      <div id="warn-list" class="warn-list hidden"></div>
+    </div>
+  </div>
+
+  <!-- Passo 2: pré-visualização -->
+  <div class="card hidden" id="card-preview">
+    <div class="card-header">
+      <div class="step-num">2</div>
+      <h2>Prévia dos dados</h2>
+    </div>
+    <div class="card-body">
+      <div class="preview-wrap">
+        <table id="preview-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Faturamento (A)</th>
+              <th>Prêmio Consultor (E)</th>
+              <th>Prêmio Supervisor (H)</th>
+            </tr>
+          </thead>
+          <tbody id="preview-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Passo 3: código gerado -->
+  <div class="card hidden" id="card-output">
+    <div class="card-header">
+      <div class="step-num">3</div>
+      <h2>Código JavaScript pronto</h2>
+    </div>
+    <div class="card-body">
+      <div class="output-box" id="output-box"></div>
+      <button class="btn-copy" id="btn-copy" onclick="copyCode()">
+        📋 Copiar código
+      </button>
+    </div>
+  </div>
+
+  <!-- Instrução de uso -->
+  <div class="instruction" id="instruction" style="display:none">
+    <h3>⚡ Como usar o código gerado</h3>
+    <ol>
+      <li>Clique em <strong>"Copiar código"</strong> acima.</li>
+      <li>Abra o arquivo <code>premiacao-rules.js</code> na pasta do projeto.</li>
+      <li>Localize a constante <code>TABELA_PREMIACAO = [</code> (linha ~29).</li>
+      <li>Selecione tudo desde <code>const TABELA_PREMIACAO</code> até o <code>];</code> que a fecha.</li>
+      <li>Cole o código copiado no lugar — e salve.</li>
+      <li>Abra qualquer página do simulador no navegador, pressione <strong>F12</strong> → Console → digite <code>runTests()</code> e confirme que todos os testes passaram.</li>
+    </ol>
+  </div>
+
+</div>
+
+<script>
+'use strict';
+
+/* ── Constantes de leitura (mesmas do import-xlsx.py) ─── */
+const COL_FAT  = 0;   // Coluna A
+const COL_CONS = 4;   // Coluna E
+const COL_SUP  = 7;   // Coluna H
+const FAT_MIN  = 10000;
+
+let generatedCode = '';
+
+/* ── Drag & drop ─────────────────────────────────────── */
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('click', function(e) {
+  if (e.target.tagName !== 'BUTTON') document.getElementById('file-input').click();
+});
+dz.addEventListener('dragover', function(e) { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', function()  { dz.classList.remove('drag-over'); });
+dz.addEventListener('drop', function(e) {
+  e.preventDefault();
+  dz.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f) processFile(f);
+});
+document.getElementById('file-input').addEventListener('change', function() {
+  if (this.files[0]) processFile(this.files[0]);
+});
+
+/* ── Processamento ───────────────────────────────────── */
+function isNumeric(v) {
+  if (v === null || v === undefined || v === '') return false;
+  const n = Number(v);
+  return !isNaN(n) && isFinite(n);
+}
+
+function toBRL(v) {
+  return 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+}
+
+function processFile(file) {
+  const status = document.getElementById('file-status');
+  if (!file.name.match(/\.xlsx?$/i)) {
+    status.innerHTML = '<div class="status-pill erro">⚠ Selecione um arquivo .xlsx ou .xls</div>';
+    return;
+  }
+
+  status.innerHTML = '<div class="status-pill aviso">⏳ Lendo arquivo…</div>';
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data  = new Uint8Array(e.target.result);
+      const wb    = XLSX.read(data, { type: 'array' });
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      const rows  = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: null });
+
+      const valid  = [];
+      const avisos = [];
+
+      rows.forEach(function(row, i) {
+        const fat  = row[COL_FAT];
+        const pCon = row[COL_CONS];
+        const pSup = row[COL_SUP];
+
+        if (!isNumeric(fat)) return;          // linha sem número em A
+        const fatN = Math.round(Number(fat));
+        if (fatN === 1) return;               // cabeçalho numérico
+        if (fatN < FAT_MIN) return;           // abaixo do mínimo
+
+        if (!isNumeric(pCon) || !isNumeric(pSup)) {
+          avisos.push('Linha ' + (i + 1) + ': Faturamento=' + fatN + ' — prêmio inválido, ignorado');
+          return;
+        }
+
+        valid.push([fatN, Math.round(Number(pCon)), Math.round(Number(pSup))]);
+      });
+
+      // Ordenar por faturamento ASC
+      valid.sort(function(a, b) { return a[0] - b[0]; });
+
+      if (valid.length === 0) {
+        status.innerHTML = '<div class="status-pill erro">❌ Nenhuma linha válida encontrada. Verifique se a planilha tem dados nas colunas A, E e H.</div>';
+        return;
+      }
+
+      status.innerHTML =
+        '<div class="status-pill ok">✓ ' + file.name + ' · ' + valid.length + ' faixas encontradas</div>';
+
+      // Avisos
+      const warnEl = document.getElementById('warn-list');
+      if (avisos.length > 0) {
+        warnEl.classList.remove('hidden');
+        warnEl.innerHTML = '<strong>⚠ Linhas ignoradas por valor inválido:</strong><ul>' +
+          avisos.map(function(a) { return '<li>' + a + '</li>'; }).join('') + '</ul>';
+      } else {
+        warnEl.classList.add('hidden');
+      }
+
+      renderPreview(valid);
+      renderCode(valid, file.name);
+
+      document.getElementById('card-preview').classList.remove('hidden');
+      document.getElementById('card-output').classList.remove('hidden');
+      document.getElementById('instruction').style.display = 'block';
+
+    } catch (err) {
+      document.getElementById('file-status').innerHTML =
+        '<div class="status-pill erro">❌ Erro ao ler arquivo: ' + err.message + '</div>';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+/* ── Prévia ──────────────────────────────────────────── */
+function renderPreview(rows) {
+  const tbody = document.getElementById('preview-body');
+  // Mostrar no máximo 20 primeiras + 5 últimas
+  let toShow = rows;
+  let truncated = false;
+  if (rows.length > 30) {
+    toShow = rows.slice(0, 20);
+    truncated = true;
+  }
+
+  tbody.innerHTML = toShow.map(function(r, i) {
+    return '<tr>' +
+      '<td class="num">' + (i + 1) + '</td>' +
+      '<td class="money">' + toBRL(r[0]) + '</td>' +
+      '<td class="money">' + toBRL(r[1]) + '</td>' +
+      '<td class="money">' + toBRL(r[2]) + '</td>' +
+    '</tr>';
+  }).join('');
+
+  if (truncated) {
+    const remaining = rows.length - 20;
+    tbody.innerHTML += '<tr><td colspan="4" style="text-align:center; padding:16px; color:#5F6368; font-size:12px;">… mais ' + remaining + ' faixas (não exibidas na prévia). O código gerado inclui todas.</td></tr>';
+  }
+}
+
+/* ── Geração do código ───────────────────────────────── */
+function renderCode(rows, filename) {
+  const lines = rows.map(function(r) {
+    const fat  = String(r[0]).padStart(7, ' ');
+    const pCon = String(r[1]).padStart(6, ' ');
+    const pSup = String(r[2]).padStart(6, ' ');
+    return '  [' + fat + ', ' + pCon + ', ' + pSup + '],';
+  });
+
+  const today = new Date().toLocaleDateString('pt-BR');
+
+  generatedCode =
+    '// Gerado automaticamente por importar-tabela.html\n' +
+    '// Fonte: ' + filename + '\n' +
+    '// Gerado em: ' + today + '\n' +
+    '// Cols A (Faturamento), E (Prêmio Consultor), H (Prêmio Supervisor)\n' +
+    '// Total de faixas: ' + rows.length + '\n\n' +
+    'const TABELA_PREMIACAO = [\n' +
+    '  // [faturamento, premioConsultor, premioSupervisor]\n' +
+    lines.join('\n') + '\n' +
+    '];';
+
+  // Syntax highlighting simples
+  const html = generatedCode
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/(\/\/.+)/g, '<span class="cm">$1</span>')
+    .replace(/\b(const|var|let)\b/g, '<span class="kw">$1</span>')
+    .replace(/\b(TABELA_PREMIACAO)\b/g, '<span class="cn">$1</span>');
+
+  document.getElementById('output-box').innerHTML = html;
+}
+
+/* ── Copiar ──────────────────────────────────────────── */
+function copyCode() {
+  if (!generatedCode) return;
+  navigator.clipboard.writeText(generatedCode).then(function() {
+    const btn = document.getElementById('btn-copy');
+    btn.textContent = '✓ Copiado!';
+    btn.classList.add('copied');
+    setTimeout(function() {
+      btn.textContent = '📋 Copiar código';
+      btn.classList.remove('copied');
+    }, 2500);
+  }).catch(function() {
+    // Fallback para browsers sem clipboard API
+    const ta = document.createElement('textarea');
+    ta.value = generatedCode;
+    ta.style.position = 'fixed'; ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const btn = document.getElementById('btn-copy');
+    btn.textContent = '✓ Copiado!';
+    setTimeout(function() { btn.textContent = '📋 Copiar código'; }, 2500);
+  });
+}
+</script>
+</body>
+</html>

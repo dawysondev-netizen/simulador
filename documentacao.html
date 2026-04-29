@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentação do Simulador de Premiação</title>
+  <style>
+    :root {
+      --azul: #1a73e8;
+      --azul-claro: #e8f0fe;
+      --verde: #188038;
+      --vermelho: #d93025;
+      --texto: #202124;
+      --secundario: #5f6368;
+      --borda: #dadce0;
+      --fundo: #f8fafd;
+      --card: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--fundo);
+      color: var(--texto);
+      font-family: Inter, Roboto, Arial, sans-serif;
+      line-height: 1.6;
+    }
+    .topo {
+      position: sticky;
+      top: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 24px;
+      background: white;
+      border-bottom: 1px solid var(--borda);
+    }
+    .topo strong { color: var(--azul); }
+    button {
+      border: 0;
+      border-radius: 8px;
+      background: var(--azul);
+      color: white;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    main {
+      width: min(920px, 100%);
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+    .capa {
+      padding: 32px;
+      border: 1px solid #c7dafc;
+      border-radius: 16px;
+      background: var(--azul-claro);
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.1;
+    }
+    .sub {
+      margin: 0;
+      color: var(--secundario);
+      font-size: 16px;
+    }
+    section {
+      margin-top: 18px;
+      padding: 24px;
+      border: 1px solid var(--borda);
+      border-radius: 14px;
+      background: var(--card);
+    }
+    h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
+    h3 {
+      margin: 20px 0 8px;
+      color: var(--azul);
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+    ul { margin: 8px 0 0; padding-left: 20px; }
+    li { margin: 6px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--borda);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f1f3f4;
+      color: var(--secundario);
+      font-size: 12px;
+    }
+    code {
+      padding: 2px 6px;
+      border-radius: 5px;
+      background: #f1f3f4;
+      font-family: Consolas, monospace;
+      font-size: 13px;
+    }
+    pre {
+      overflow-x: auto;
+      padding: 16px;
+      border-radius: 12px;
+      background: #202124;
+      color: white;
+      white-space: pre-wrap;
+    }
+    .ok { color: var(--verde); font-weight: 700; }
+    .no { color: var(--vermelho); font-weight: 700; }
+    .aviso {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-left: 4px solid var(--azul);
+      border-radius: 10px;
+      background: var(--azul-claro);
+    }
+    @media print {
+      .topo button { display: none; }
+      .topo { position: static; }
+      section { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topo">
+    <strong>ADS Software</strong>
+    <button onclick="window.print()">Imprimir ou salvar em PDF</button>
+  </div>
+
+  <main>
+    <div class="capa">
+      <h1>Documentação do Simulador de Premiação</h1>
+      <p class="sub">Versão limpa para validação de regras, modo design e integração futura com Bitrix24.</p>
+    </div>
+
+    <section>
+      <h2>1. Objetivo</h2>
+      <p>O simulador calcula a premiação de consultores e supervisores usando a tabela real da planilha <strong>Tabela de premiações 28042026.xlsx</strong>.</p>
+      <p>A tela deve ser simples para vendedores: preencher faturamento, clientes na carteira e clientes atendidos. O sistema mostra premiação, certificação e pendências sem termos técnicos.</p>
+    </section>
+
+    <section>
+      <h2>2. Arquivos principais</h2>
+      <table>
+        <thead>
+          <tr><th>Arquivo</th><th>Função</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>consultor-premiacao.html</code></td><td>Tela individual do consultor.</td></tr>
+          <tr><td><code>supervisor-premiacao.html</code></td><td>Painel da equipe para supervisor.</td></tr>
+          <tr><td><code>premiacao-rules.js</code></td><td>Regras de premiação, certificação, cobertura e testes.</td></tr>
+          <tr><td><code>styles.css</code></td><td>Visual compartilhado estilo Google.</td></tr>
+          <tr><td><code>config.js</code></td><td>Nome da empresa, logo, período e configurações futuras.</td></tr>
+          <tr><td><code>access-control.js</code></td><td>Controle de acesso por perfil.</td></tr>
+          <tr><td><code>bitrixCarteiraService.js</code></td><td>Base para integração futura com Bitrix24.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>3. Regras de premiação</h2>
+      <ul>
+        <li>A premiação começa a partir de <strong>R$ 10.000,00</strong>.</li>
+        <li>A tabela aumenta por faixa de faturamento.</li>
+        <li>Quando o faturamento fica entre duas faixas, usa sempre a faixa inferior.</li>
+        <li>O prêmio do consultor vem somente da coluna <strong>Premio Cons</strong>.</li>
+        <li>O prêmio do supervisor vem somente da coluna <strong>Premio Sup</strong>.</li>
+        <li>Certificação não gera valor financeiro extra.</li>
+        <li>Existe bônus de cobertura: R$ 300 para consultor e R$ 600 para supervisor.</li>
+        <li>O bônus de cobertura só entra quando há pelo menos R$ 10.000 de faturamento e cobertura plena.</li>
+      </ul>
+
+      <h3>Exemplos validados</h3>
+      <table>
+        <thead>
+          <tr><th>Faturamento</th><th>Faixa usada</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>R$ 9.999,99</td><td>Sem premiação</td></tr>
+          <tr><td>R$ 10.999,99</td><td>R$ 10.000</td></tr>
+          <tr><td>R$ 35.700,00</td><td>R$ 35.000</td></tr>
+          <tr><td>R$ 60.999,00</td><td>R$ 60.000</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Bônus de cobertura</h3>
+      <table>
+        <thead>
+          <tr><th>Perfil</th><th>Valor</th><th>Quando soma</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Consultor</td><td>R$ 300</td><td>Faturamento mínimo de R$ 10.000 e cobertura 100%.</td></tr>
+          <tr><td>Supervisor</td><td>R$ 600</td><td>Existe performance mínima de R$ 10.000 na equipe e a cobertura da equipe está plena.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>4. Valores reais importados da planilha</h2>
+      <table>
+        <thead>
+          <tr><th>Faixa</th><th>Consultor</th><th>Supervisor</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>R$ 35.000</td><td>R$ 2.550</td><td>R$ 1.450</td></tr>
+          <tr><td>R$ 60.000</td><td>R$ 6.000</td><td>R$ 4.500</td></tr>
+          <tr><td>R$ 100.000</td><td>R$ 8.000</td><td>R$ 6.500</td></tr>
+        </tbody>
+      </table>
+      <div class="aviso">Italo com R$ 9.800 gera R$ 0,00. Ana Julia com R$ 35.000 usa a faixa de R$ 35.000.</div>
+    </section>
+
+    <section>
+      <h2>5. Certificação</h2>
+      <p>A certificação é uma classificação visual de desempenho. Ela não soma dinheiro. O valor financeiro extra possível é somente o bônus de cobertura, quando as condições forem atendidas.</p>
+      <table>
+        <thead>
+          <tr><th>Certificação</th><th>Faturamento mínimo</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Bronze</td><td>R$ 15.000</td></tr>
+          <tr><td>Prata</td><td>R$ 25.000</td></tr>
+          <tr><td>Ouro</td><td>R$ 35.000</td></tr>
+          <tr><td>Diamante</td><td>R$ 45.000</td></tr>
+          <tr><td>Platinum</td><td>R$ 60.000</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>Faturamento define a certificação potencial.</li>
+        <li>Cobertura de 100% valida a certificação.</li>
+        <li>Cobertura menor que 100% bloqueia a certificação.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>6. Cobertura da carteira</h2>
+      <p>A cobertura é calculada por clientes, não digitada como porcentagem.</p>
+      <pre>cobertura = clientes atendidos / clientes na carteira * 100</pre>
+      <ul>
+        <li>Se todos os clientes foram atendidos, a cobertura é plena.</li>
+        <li>Se existe cliente pendente, a certificação fica bloqueada.</li>
+        <li>Se não existe carteira vigente, a certificação não é liberada.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>7. Página do consultor</h2>
+      <ul>
+        <li>Título: <strong>Quanto vou receber este mês?</strong></li>
+        <li>Mostra apenas dados individuais.</li>
+        <li>Mostra premiação estimada pela tabela.</li>
+        <li>Mostra certificação potencial e status.</li>
+        <li>Mostra clientes pendentes de atendimento.</li>
+        <li>Não mostra dados da equipe nem prêmio do supervisor.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>8. Página do supervisor</h2>
+      <ul>
+        <li>Título: <strong>Painel de Premiação da Equipe</strong></li>
+        <li>Mostra visão da equipe.</li>
+        <li>Calcula o prêmio individual de cada consultor.</li>
+        <li>Soma os prêmios individuais para chegar ao total do supervisor.</li>
+        <li>Não calcula prêmio pelo faturamento total da equipe.</li>
+        <li>Soma o bônus de cobertura de R$ 600 somente quando a equipe está com cobertura plena e existe performance mínima de R$ 10.000.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>9. Controle de acesso</h2>
+      <table>
+        <thead>
+          <tr><th>Perfil</th><th>Página do consultor</th><th>Página do supervisor</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Consultor</td><td class="ok">Acessa</td><td class="no">Não acessa</td></tr>
+          <tr><td>Supervisor</td><td class="ok">Acessa</td><td class="ok">Acessa</td></tr>
+          <tr><td>Administrador</td><td class="ok">Acessa</td><td class="ok">Acessa</td></tr>
+        </tbody>
+      </table>
+      <p>Sem autenticação real integrada, o sistema usa Administrador como perfil padrão para não bloquear os testes locais.</p>
+    </section>
+
+    <section>
+      <h2>10. Guia para modo design</h2>
+      <p>Use este briefing no modo design para manter a experiência simples para vendedores:</p>
+      <pre>Crie uma interface estilo Google Workspace para um simulador de premiação de vendedores.
+Objetivo: o vendedor deve entender em menos de 10 segundos quanto pode receber e o que falta para validar a certificação.
+Evite termos técnicos, inglês, abreviações e aparência de campanha.
+Use fundo claro, cards brancos, borda suave, azul #1A73E8, verde #188038 e vermelho #D93025.
+Primeiro destaque: "Premiação estimada pela tabela".
+Segundo destaque: "Certificação potencial" e "Status da certificação".
+Entrada de dados: faturamento, clientes na carteira, clientes atendidos.
+Cobertura deve ser calculada automaticamente.
+Certificação não adiciona dinheiro.
+Supervisor deve ver a equipe, mas o cálculo deve ser por consultor individual.</pre>
+
+      <h3>Componentes recomendados</h3>
+      <ul>
+        <li>Card principal com premiação estimada.</li>
+        <li>Card de cobertura com barra de progresso.</li>
+        <li>Card de certificação com status validada ou bloqueada.</li>
+        <li>Lista simples de pendências.</li>
+        <li>Tabela objetiva para supervisor.</li>
+        <li>Cores discretas, sem gradiente forte.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>11. Como validar</h2>
+      <p>Abra qualquer tela, pressione F12, entre no console e execute:</p>
+      <pre>runTests()</pre>
+      <p>Resultado atual: <strong>27 testes passando</strong>.</p>
+    </section>
+  </main>
+</body>
+</html>
