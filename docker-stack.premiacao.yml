@@ -1,0 +1,83 @@
+version: "3.8"
+
+x-premiacao-shared: &premiacao-shared
+  image: ${SIMULADOR_IMAGE:-simulador-premiacao:latest}
+  networks:
+    - network_public
+  healthcheck:
+    test: ["CMD", "wget", "-qO-", "http://127.0.0.1/healthz"]
+    interval: 30s
+    timeout: 3s
+    retries: 3
+    start_period: 10s
+  deploy:
+    mode: replicated
+    replicas: 1
+    placement:
+      constraints:
+        - node.labels.workload == application
+    restart_policy:
+      condition: on-failure
+      delay: 5s
+      max_attempts: 3
+    resources:
+      limits:
+        cpus: "0.25"
+        memory: 128M
+
+services:
+  consultor:
+    <<: *premiacao-shared
+    environment:
+      DEFAULT_PAGE: consultor-premiacao.html
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.workload == application
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=network_public"
+        - "traefik.http.routers.simulador_consultor.rule=Host(`${CONSULTOR_HOST:-consultor-premiacao.cloud.ads.software}`)"
+        - "traefik.http.routers.simulador_consultor.entrypoints=websecure"
+        - "traefik.http.routers.simulador_consultor.tls.certresolver=cfresolver"
+        - "traefik.http.services.simulador_consultor.loadbalancer.server.port=80"
+
+  supervisor:
+    <<: *premiacao-shared
+    environment:
+      DEFAULT_PAGE: supervisor-premiacao.html
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints:
+          - node.labels.workload == application
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+      resources:
+        limits:
+          cpus: "0.25"
+          memory: 128M
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=network_public"
+        - "traefik.http.routers.simulador_supervisor.rule=Host(`${SUPERVISOR_HOST:-supervisor-premiacao.cloud.ads.software}`)"
+        - "traefik.http.routers.simulador_supervisor.entrypoints=websecure"
+        - "traefik.http.routers.simulador_supervisor.tls.certresolver=cfresolver"
+        - "traefik.http.services.simulador_supervisor.loadbalancer.server.port=80"
+
+networks:
+  network_public:
+    external: true
