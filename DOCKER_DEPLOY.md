@@ -30,8 +30,8 @@ docker build -t simulador-premiacao:latest .
 Defina os hosts que o Traefik vai publicar:
 
 ```bash
-export CONSULTOR_HOST=consultor-premiacao.cloud.ads.software
-export SUPERVISOR_HOST=supervisor-premiacao.cloud.ads.software
+export CONSULTOR_HOST=consultor.ads.software
+export SUPERVISOR_HOST=supervisor.ads.software
 export SIMULADOR_IMAGE=simulador-premiacao:latest
 docker stack deploy -c docker-stack.premiacao.yml premiacao
 ```

@@ -47,7 +47,7 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.docker.network=network_public"
-        - "traefik.http.routers.simulador_consultor.rule=Host(`${CONSULTOR_HOST:-consultor-premiacao.cloud.ads.software}`)"
+        - "traefik.http.routers.simulador_consultor.rule=Host(`${CONSULTOR_HOST:-consultor.ads.software}`)"
         - "traefik.http.routers.simulador_consultor.entrypoints=websecure"
         - "traefik.http.routers.simulador_consultor.tls.certresolver=cfresolver"
         - "traefik.http.services.simulador_consultor.loadbalancer.server.port=80"
@@ -73,7 +73,7 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.docker.network=network_public"
-        - "traefik.http.routers.simulador_supervisor.rule=Host(`${SUPERVISOR_HOST:-supervisor-premiacao.cloud.ads.software}`)"
+        - "traefik.http.routers.simulador_supervisor.rule=Host(`${SUPERVISOR_HOST:-supervisor.ads.software}`)"
         - "traefik.http.routers.simulador_supervisor.entrypoints=websecure"
         - "traefik.http.routers.simulador_supervisor.tls.certresolver=cfresolver"
         - "traefik.http.services.simulador_supervisor.loadbalancer.server.port=80"
